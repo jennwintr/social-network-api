@@ -15,6 +15,7 @@ const userController = {
             res.status(400).json(err)
         })
   },
+
   // get single user by id
   getUserById({ params }, res) {
     User.findOne({ _id: params.id })
@@ -35,6 +36,7 @@ const userController = {
         res.status(400).json(err);
       });
   },
+
   // create a new user
   createUser({ body }, res) {
     console.log("BODY OBJECT", body)
@@ -45,6 +47,7 @@ const userController = {
             res.status(400).json(err)
         })
   },
+
   // update a user
   updateUser({ params, body }, res) {
     User.findOneAndUpdate({ _id: params.id }, body, {
@@ -60,22 +63,29 @@ const userController = {
       })
       .catch((err) => res.status(400).json(err));
   },
+
   // delete user (BONUS: and delete associated thoughts)
-  async deleteUser(req, res) {
-    try {
-      const dbUserData = await User.findOneAndDelete({ _id: req.params.userId })
-
-      if (!dbUserData) {
-        return res.status(404).json({ message: 'No user with this id!' });
-      }
-
-      // BONUS: get ids of user's `thoughts` and delete them all
-      await Thought.deleteMany({ _id: { $in: dbUserData.thoughts } });
-      res.json({ message: 'User and associated thoughts deleted!' });
-    } catch (err) {
-      console.log(err);
-      res.status(500).json(err);
-    }
+  deleteUser({ params }, res) {
+    User.findOneAndDelete({ _id: params.id })
+      .then((dbUserData) => {
+        if (!dbUserData) {
+          res.status(404).json({ message: "No user found with this id" });
+          return;
+        }
+        User.updateMany(
+          { _id: { $in: dbUserData.friends } },
+          { $pull: { friends: params.id } }
+        )
+          .then(() => {
+            Thought.deleteMany({ username: dbUserData.username })
+              .then(() => {
+                res.json({ message: "Successfully deleted user" });
+              })
+              .catch((err) => res.status(400).json(err));
+          })
+          .catch((err) => res.status(400).json(err));
+      })
+      .catch((err) => res.status(400).json(err));
   },
 
   // add friend to friend list
@@ -93,6 +103,7 @@ const userController = {
       res.status(500).json(err);
     }
   },
+  
   // remove friend from friend list
   async removeFriend(req, res) {
     try {
