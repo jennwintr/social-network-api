@@ -1,6 +1,34 @@
 const { Schema, model } = require('mongoose');
-const reactionSchema = require('./Reaction');
 const dateFormat = require('../utils/dateFormat');
+
+const ReactionSchema = new Schema(
+  {
+      reactionId: {
+          type: Schema.Types.ObjectId,
+          default: () => new Types.ObjectId(),
+      },
+      reactionBody: {
+          type: String,
+          required: 'Please Enter Your Reaction!',
+          maxlength: 280
+      },
+      username: {
+          type: String,
+          required: 'Please Enter a name',
+          trim: true
+      },
+      createdAt: {
+          type: Date,
+          default: Date.now,
+          get: createdAtVal => dateFormat(createdAtVal)
+      }
+  },
+  {
+      toJSON: {
+          getters: true
+      }
+  }
+)
 
 const thoughtSchema = new Schema(
   {
