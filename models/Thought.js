@@ -30,30 +30,33 @@ const ReactionSchema = new Schema(
   }
 )
 
-const thoughtSchema = new Schema(
+const ThoughtSchema = new Schema(
   {
-    thoughtText: {
-      type: String,
-      required: 'You need to leave a thought!',
-      minlength: 1,
-      maxlength: 280
-    },
-    createdAt: {
-      type: Date,
-      default: Date.now,
-      get: timestamp => dateFormat(timestamp)
-    },
-    username: {
-      type: String,
-      required: true
-    },
-    reactions: [reactionSchema]
+      
+      username: {
+          type: String,
+          required: true,
+          trim: true
+      },
+      thoughtText: {
+          type: String,
+          required: 'Please enter your thoughts in the form of text',
+          minlength: 1,
+          maxlength: 280
+      },
+      createdAt: {
+          type: Date,
+          default: Date.now,
+          get: createdAtVal => dateFormat(createdAtVal)
+      },
+      reactions: [ReactionSchema]
   },
   {
-    toJSON: {
-      getters: true
-    },
-    id: false
+      toJSON: {
+          getters: true,
+          virtuals: true
+      },
+      id: false
   }
 );
 
