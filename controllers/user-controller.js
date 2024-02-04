@@ -16,22 +16,24 @@ const userController = {
         })
   },
   // get single user by id
-  async getSingleUser(req, res) {
-    try {
-      const dbUserData = await User.findOne({ _id: req.params.userId })
-        .select('-__v')
-        .populate('friends')
-        .populate('thoughts');
-
-      if (!dbUserData) {
-        return res.status(404).json({ message: 'No user with this id!' });
-      }
-
-      res.json(dbUserData);
-    } catch (err) {
-      console.log(err);
-      res.status(500).json(err);
-    }
+  getUserById({ params }, res) {
+    User.findOne({ _id: params.id })
+      .populate({
+        path: "thoughts",
+        select: "-__v",
+      })
+      .select("-__v")
+      .then((dbUserData) => {
+        if (!dbUserData) {
+          res.status(404).json({ message: "No user found with this id!" });
+          return;
+        }
+        res.json(dbUserData);
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(400).json(err);
+      });
   },
   // create a new user
   async createUser(req, res) {
