@@ -2,16 +2,18 @@ const { User, Thought } = require('../models');
 
 const userController = {
   // get all users
-  async getUsers(req, res) {
-    try {
-      const dbUserData = await User.find()
+  getAllUsers(req, res) {
+    User.find({})
+        .populate({
+            path: 'thoughts',
+            select: ('-__v')
+        })
         .select('-__v')
-
-      res.json(dbUserData);
-    } catch (err) {
-      console.log(err);
-      res.status(500).json(err);
-    }
+        .then(dbUserData => res.json(dbUserData))
+        .catch(err => {
+            console.log(err);
+            res.status(400).json(err)
+        })
   },
   // get single user by id
   async getSingleUser(req, res) {
