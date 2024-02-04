@@ -36,14 +36,14 @@ const userController = {
       });
   },
   // create a new user
-  async createUser(req, res) {
-    try {
-      const dbUserData = await User.create(req.body);
-      res.json(dbUserData);
-    } catch (err) {
-      console.log(err);
-      res.status(500).json(err);
-    }
+  createUser({ body }, res) {
+    console.log("BODY OBJECT", body)
+    User.create(body)
+        .then(dbUserData => res.json(dbUserData))
+        .catch(err => {
+            console.log(err)
+            res.status(400).json(err)
+        })
   },
   // update a user
   async updateUser(req, res) {
